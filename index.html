@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Générateur d'Ordre de Mission</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- html2pdf.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="app-container">
+        <header>
+            <h1>Générateur d'Ordre de Mission</h1>
+            <p>Remplissez le tableau ci-dessous et cliquez sur "Générer PDF"</p>
+        </header>
+
+        <main>
+            <div class="table-container">
+                <table id="usersTable">
+                    <thead>
+                        <tr>
+                            <th>Nom et Prénom</th>
+                            <th>Matricule</th>
+                            <th>Lieu du déplacement</th>
+                            <th>Motif</th>
+                            <th>Date de départ</th>
+                            <th>Date de retour</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Rows will be added here -->
+                    </tbody>
+                </table>
+                <button id="addRowBtn" class="btn secondary">+ Ajouter un employé</button>
+            </div>
+
+            <div class="actions">
+                <button id="generateBtn" class="btn primary">Générer PDF</button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Hidden Template for PDF Generation -->
+    <div id="pdf-template-container" style="display: none;">
+        <!-- The content here will be cloned and populated for each user -->
+        <div class="mission-order-page">
+            <div class="header-section">
+                <div class="logo-box">
+                    <!-- Placeholder for logo if needed, or just text -->
+                    <img src="https://via.placeholder.com/100x50?text=Logo" alt="Logo" class="logo-img">
+                </div>
+                <div class="title-box">
+                    <div class="top-row">
+                        <span>Formulaire Direction Provinciale</span>
+                        <span class="year">2025</span>
+                    </div>
+                    <h2>Ordre de mission</h2>
+                    <div class="bottom-row">
+                        <span>Version : 01</span>
+                        <span>Page 1 sur 1</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-title">Agent</div>
+            <div class="content-box agent-info">
+                <div class="row">
+                    <div class="field"><strong>Nom et prénom :</strong> <span class="data-name"></span></div>
+                </div>
+                <div class="row">
+                    <div class="field"><strong>Matricule :</strong> <span class="data-matricule"></span></div>
+                    <div class="field"><strong>Fonction :</strong> AGENT TECHNIQUE</div>
+                </div>
+                <div class="row">
+                    <div class="field"><strong>Direction :</strong> TANGER</div>
+                    <div class="field"><strong>Département :</strong> AL HOCEIMA</div>
+                </div>
+                <div class="row">
+                    <div class="field"><strong>Division :</strong> AL HOCEIMA</div>
+                    <div class="field"><strong>Service :</strong> AS BNI BOUFRAH</div>
+                </div>
+                <div class="row">
+                    <div class="field"><strong>Province / Préfecture :</strong> AL HOCEIMA</div>
+                </div>
+            </div>
+
+            <div class="section-title">Mission</div>
+            <div class="content-box mission-info">
+                <div class="row">
+                    <div class="field"><strong>Lieu de déplacement :</strong> <span class="data-lieu"></span></div>
+                </div>
+                <div class="row">
+                    <div class="field"><strong>Motif du déplacement :</strong> <span class="data-motif"></span></div>
+                </div>
+                <div class="row">
+                    <div class="field"><strong>Date de départ :</strong> <span class="data-date-depart"></span></div>
+                    <div class="field"><strong>Heure de départ :</strong> 08 H 00</div>
+                </div>
+                <div class="row">
+                    <div class="field"><strong>Date de retour :</strong> <span class="data-date-retour"></span></div>
+                    <div class="field"><strong>Heure de retour :</strong> 17 H 00</div>
+                </div>
+            </div>
+
+            <div class="section-title">Moyen de transport</div>
+            <div class="content-box transport-info">
+                <div class="checkbox-row">
+                    <span class="checkbox">☐</span> Covoiturage :
+                    ........................................................................................................................
+                </div>
+                <div class="checkbox-row">
+                    <span class="checkbox">☑</span> Véhicule de service :
+                    .................................................................................................................
+                </div>
+                <div class="checkbox-row">
+                    <span class="checkbox">☐</span> Transport commun :
+                    .................................................................................................................
+                </div>
+                <div class="checkbox-row">
+                    <span class="checkbox">☐</span> Véhicule personnel : Marque : ....................................
+                    Puissance Fiscale: ....................................
+                </div>
+
+                <div class="signatures-row">
+                    <div class="date-place">
+                        <p>Fait le : <span class="current-date"></span></p>
+                        <p>à BNI BOUFRAH</p>
+                    </div>
+                    <div class="agent-signature">
+                        Signature de l'agent
+                    </div>
+                </div>
+            </div>
+
+            <div class="approval-grid">
+                <div class="approval-box">
+                    <div class="box-title">Visa Chef de Service</div>
+                    <div class="box-content"></div>
+                </div>
+                <div class="approval-box">
+                    <div class="box-title">Visa Chef de Division</div>
+                    <div class="box-content"></div>
+                </div>
+                <div class="approval-box">
+                    <div class="box-title">Visa Chef de Département</div>
+                    <div class="box-content"></div>
+                </div>
+                <div class="approval-box">
+                    <div class="box-title">Visa DP</div>
+                    <div class="box-content"></div>
+                </div>
+                <div class="approval-box">
+                    <div class="box-title">Visa Directeur Central</div>
+                    <div class="box-content"></div>
+                </div>
+                <div class="approval-box">
+                    <div class="box-title">Direction CH</div>
+                    <div class="box-content"></div>
+                </div>
+            </div>
+
+            <div class="footer-row">
+                <div class="footer-box">Si l'agent relève d'une fonction support ou clientèle</div>
+                <div class="footer-box">Si l'agent relève d'une fonction support ou clientèle</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
