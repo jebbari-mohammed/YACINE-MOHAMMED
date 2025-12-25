@@ -22,6 +22,9 @@
 
         <main>
             <div class="table-container">
+                <div class="table-actions-header">
+                    <button id="addRowBtn" class="btn secondary">+ Ajouter un employé</button>
+                </div>
                 <table id="usersTable">
                     <thead>
                         <tr>
@@ -38,7 +41,6 @@
                         <!-- Rows will be added here -->
                     </tbody>
                 </table>
-                <button id="addRowBtn" class="btn secondary">+ Ajouter un employé</button>
             </div>
 
             <div class="actions">
@@ -61,12 +63,11 @@
                     <td class="header-info-cell">2025</td>
                 </tr>
                 <tr>
-                    <td class="header-title-cell">Ordre de mission</td>
+                    <td class="header-title-cell" rowspan="2">Ordre de mission</td>
                     <td class="header-info-cell">Version : 01</td>
                 </tr>
                 <tr>
-                    <td class="header-empty-cell"></td>
-                    <td class="header-info-cell">Page 1 sur 1</td>
+                    <td class="header-info-cell page-number">Page 1 sur 1</td>
                 </tr>
             </table>
 

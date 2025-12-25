@@ -7,23 +7,27 @@ document.addEventListener('DOMContentLoaded', () => {
     // Add initial row
     addRow();
 
-    addRowBtn.addEventListener('click', addRow);
+    addRowBtn.addEventListener('click', () => addRow()); // Call addRow without data for a new empty row
     generateBtn.addEventListener('click', generatePDF);
     generateReportBtn.addEventListener('click', generateReportPDF);
 
-    function addRow() {
+    function addRow(data = null) {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td><input type="text" placeholder="Nom et Prénom" class="input-name"></td>
-            <td><input type="text" placeholder="Matricule" class="input-matricule"></td>
-            <td><input type="text" placeholder="Lieu" class="input-lieu"></td>
-            <td><input type="text" placeholder="Motif" class="input-motif"></td>
-            <td><input type="date" class="input-date-depart"></td>
-            <td><input type="date" class="input-date-retour"></td>
-            <td><button class="btn danger remove-btn">X</button></td>
+            <td><input type="text" class="input-name" placeholder="Nom et Prénom" value="${data ? data.name : ''}"></td>
+            <td><input type="text" class="input-matricule" placeholder="Matricule" value="${data ? data.matricule : ''}"></td>
+            <td><input type="text" class="input-lieu" placeholder="Lieu" value="${data ? data.lieu : ''}"></td>
+            <td><input type="text" class="input-motif" placeholder="Motif" value="${data ? data.motif : ''}"></td>
+            <td><input type="date" class="input-date-depart" value="${data ? data.dateDepart : ''}"></td>
+            <td><input type="date" class="input-date-retour" value="${data ? data.dateRetour : ''}"></td>
+            <td>
+                <button class="btn-icon btn-duplicate" title="Dupliquer">📋</button>
+                <button class="btn-icon btn-remove" title="Supprimer">🗑️</button>
+            </td>
         `;
 
-        tr.querySelector('.remove-btn').addEventListener('click', () => {
+        // Add event listeners for buttons
+        tr.querySelector('.btn-remove').addEventListener('click', function () {
             if (tableBody.children.length > 1) {
                 tr.remove();
             } else {
@@ -31,7 +35,21 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
+        tr.querySelector('.btn-duplicate').addEventListener('click', function () {
+            const rowData = {
+                name: tr.querySelector('.input-name').value,
+                matricule: tr.querySelector('.input-matricule').value,
+                lieu: tr.querySelector('.input-lieu').value,
+                motif: tr.querySelector('.input-motif').value,
+                dateDepart: tr.querySelector('.input-date-depart').value,
+                dateRetour: tr.querySelector('.input-date-retour').value
+            };
+            const newRow = addRow(rowData);
+            tr.parentNode.insertBefore(newRow, tr.nextSibling);
+        });
+
         tableBody.appendChild(tr);
+        return tr;
     }
 
     function generatePDF() {
@@ -39,12 +57,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const templateContainer = document.getElementById('pdf-template-container');
         const printContainer = document.createElement('div');
 
-        // Current date for "Fait le ..."
         const today = new Date().toLocaleDateString('fr-FR');
 
-        let hasData = false;
+        // Filter valid rows first to know total count
+        const validRows = Array.from(rows).filter(row => {
+            const name = row.querySelector('.input-name').value;
+            const matricule = row.querySelector('.input-matricule').value;
+            return name || matricule;
+        });
 
-        rows.forEach((row, index) => {
+        if (validRows.length === 0) {
+            alert("Veuillez remplir au moins une ligne.");
+            return;
+        }
+
+        const totalPages = validRows.length;
+
+        validRows.forEach((row, index) => {
             const name = row.querySelector('.input-name').value;
             const matricule = row.querySelector('.input-matricule').value;
             const lieu = row.querySelector('.input-lieu').value;
@@ -52,36 +81,26 @@ document.addEventListener('DOMContentLoaded', () => {
             const dateDepart = row.querySelector('.input-date-depart').value;
             const dateRetour = row.querySelector('.input-date-retour').value;
 
-            if (name || matricule) { // Only process if there's some data
-                hasData = true;
-                // Clone the template
-                const clone = templateContainer.querySelector('.mission-order-page').cloneNode(true);
+            const clone = templateContainer.querySelector('.mission-order-page').cloneNode(true);
 
-                // Populate data
-                clone.querySelector('.data-name').textContent = name;
-                clone.querySelector('.data-matricule').textContent = matricule;
-                clone.querySelector('.data-lieu').textContent = lieu;
-                clone.querySelector('.data-motif').textContent = motif;
-                clone.querySelector('.data-date-depart').textContent = formatDate(dateDepart);
-                clone.querySelector('.data-date-retour').textContent = formatDate(dateRetour);
-                clone.querySelector('.data-fait-le').textContent = formatDate(dateDepart);
+            clone.querySelector('.data-name').textContent = name;
+            clone.querySelector('.data-matricule').textContent = matricule;
+            clone.querySelector('.data-lieu').textContent = lieu;
+            clone.querySelector('.data-motif').textContent = motif;
+            clone.querySelector('.data-date-depart').textContent = formatDate(dateDepart);
+            clone.querySelector('.data-date-retour').textContent = formatDate(dateRetour);
+            clone.querySelector('.data-fait-le').textContent = formatDate(dateDepart);
 
-                // Add page break after each page except the last one
-                if (index < rows.length - 1) {
-                    // clone.style.marginBottom = '20px'; // Removed to avoid overflow
-                    clone.classList.add('html2pdf__page-break');
-                }
+            // Update page number
+            clone.querySelector('.page-number').textContent = `Page ${index + 1} sur ${totalPages}`;
 
-                printContainer.appendChild(clone);
+            if (index < validRows.length - 1) {
+                clone.classList.add('html2pdf__page-break');
             }
+
+            printContainer.appendChild(clone);
         });
 
-        if (!hasData) {
-            alert("Veuillez remplir au moins une ligne.");
-            return;
-        }
-
-        // Options for html2pdf
         const opt = {
             margin: 0,
             filename: 'ordres_de_mission.pdf',
@@ -91,7 +110,6 @@ document.addEventListener('DOMContentLoaded', () => {
             pagebreak: { mode: ['css', 'legacy'] }
         };
 
-        // Generate PDF
         html2pdf().set(opt).from(printContainer).save();
     }
 
@@ -131,33 +149,61 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        matricules.forEach((mat, index) => {
+        const MAX_ROWS_PER_PAGE = 15; // Safe limit for A4
+
+        matricules.forEach((mat, empIndex) => {
             const employee = employees[mat];
-            const clone = templateContainer.querySelector('.mission-report-page').cloneNode(true);
+            const missions = employee.missions;
 
-            clone.querySelector('.data-name').textContent = employee.name;
-            clone.querySelector('.data-matricule').textContent = employee.matricule;
+            // Calculate number of pages needed
+            const pageCount = Math.ceil(missions.length / MAX_ROWS_PER_PAGE) || 1;
 
-            // Populate table rows with missions
-            const tableRows = clone.querySelectorAll('.report-table tbody tr');
+            for (let i = 0; i < pageCount; i++) {
+                const clone = templateContainer.querySelector('.mission-report-page').cloneNode(true);
 
-            employee.missions.forEach((mission, missionIndex) => {
-                if (missionIndex < tableRows.length) {
-                    const cells = tableRows[missionIndex].querySelectorAll('td');
-                    if (cells.length >= 4) {
-                        cells[0].textContent = formatDate(mission.date);
-                        cells[1].textContent = "08 H 00";
-                        cells[2].textContent = "17 H 00";
-                        cells[3].textContent = mission.motif;
+                clone.querySelector('.data-name').textContent = employee.name;
+                clone.querySelector('.data-matricule').textContent = employee.matricule;
+
+                // Get the slice of missions for this page
+                const start = i * MAX_ROWS_PER_PAGE;
+                const end = start + MAX_ROWS_PER_PAGE;
+                const pageMissions = missions.slice(start, end);
+
+                // Clear existing rows in the clone
+                const tbody = clone.querySelector('.report-table tbody');
+                tbody.innerHTML = '';
+
+                // Generate exactly MAX_ROWS_PER_PAGE rows
+                for (let r = 0; r < MAX_ROWS_PER_PAGE; r++) {
+                    const tr = document.createElement('tr');
+
+                    if (r < pageMissions.length) {
+                        const mission = pageMissions[r];
+                        tr.innerHTML = `
+                            <td>${formatDate(mission.date)}</td>
+                            <td>08 H 00</td>
+                            <td>17 H 00</td>
+                            <td>${mission.motif}</td>
+                        `;
+                    } else {
+                        // Empty row
+                        tr.innerHTML = `
+                            <td>&nbsp;</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        `;
                     }
+                    tbody.appendChild(tr);
                 }
-            });
 
-            if (index < matricules.length - 1) {
-                clone.classList.add('html2pdf__page-break');
+                // Add page break if it's not the very last page of the very last employee
+                if (empIndex < matricules.length - 1 || i < pageCount - 1) {
+                    clone.classList.add('html2pdf__page-break');
+                }
+
+                printContainer.appendChild(clone);
             }
-
-            printContainer.appendChild(clone);
         });
 
         const opt = {
