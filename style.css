@@ -124,54 +124,48 @@ input[type="date"] {
     /* For visibility during dev, removed in PDF usually */
 }
 
-.header-section {
-    display: flex;
-    border: 2px solid #000;
+.header-table {
+    width: 100%;
+    border-collapse: collapse;
     margin-bottom: 10px;
+    border: 2px solid #000;
 }
 
-.logo-box {
-    width: 20%;
-    border-right: 1px solid #000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.header-table td {
+    border: 1px solid #000;
+    text-align: center;
+    vertical-align: middle;
     padding: 5px;
+}
+
+.logo-cell {
+    width: 25%;
+}
+
+.header-text-cell {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.header-title-cell {
+    font-weight: bold;
+    font-size: 20px;
+    text-transform: none;
+    /* User image shows normal casing */
+}
+
+.header-info-cell {
+    width: 15%;
+    font-size: 12px;
+}
+
+.header-empty-cell {
+    height: 20px;
 }
 
 .logo-img {
     max-width: 100%;
-    max-height: 60px;
-}
-
-.title-box {
-    width: 80%;
-    display: flex;
-    flex-direction: column;
-}
-
-.title-box .top-row,
-.title-box .bottom-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 5px 10px;
-    border-bottom: 1px solid #000;
-    font-size: 10px;
-}
-
-.title-box .bottom-row {
-    border-bottom: none;
-    border-top: 1px solid #000;
-}
-
-.title-box h2 {
-    text-align: center;
-    margin: 10px 0;
-    font-size: 18px;
-    text-transform: uppercase;
-    font-weight: bold;
-    color: #444;
-    /* Slightly grey like the image */
+    max-height: 90px;
 }
 
 .section-title {
@@ -257,6 +251,115 @@ input[type="date"] {
     padding: 2px;
     border: 1px solid #000;
     border-top: none;
+}
+
+
+/* Report Template Styles */
+.mission-report-page {
+    width: 210mm;
+    min-height: 270mm;
+    /* Reduced further to prevent overflow */
+    padding: 10mm;
+    background: white;
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    color: black;
+    box-sizing: border-box;
+    position: relative;
+    border: 1px solid #ccc;
+}
+
+.report-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    /* Reduced margin */
+}
+
+.report-logo {
+    width: 30%;
+}
+
+.report-title {
+    width: 70%;
+    text-align: center;
+}
+
+.report-title h1 {
+    font-size: 18px;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+.report-info-row {
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+.report-agent-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.agent-col.right {
+    text-align: right;
+    margin-right: 50px;
+}
+
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 2px solid #000;
+    margin-bottom: 0;
+}
+
+.report-table th,
+.report-table td {
+    border: 1px solid #000;
+    padding: 5px;
+    text-align: center;
+}
+
+.report-table th {
+    font-weight: bold;
+    background-color: #fff;
+}
+
+.report-table td {
+    height: 20px;
+}
+
+.report-signatures {
+    border: 2px solid #000;
+    border-top: none;
+    padding: 10px;
+    min-height: 150px;
+}
+
+.sig-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 40px;
+    padding: 0 20px;
+}
+
+.sig-row.center {
+    justify-content: center;
+}
+
+.sig-box {
+    font-weight: bold;
+    font-size: 11px;
+}
+
+.report-footer {
+    margin-top: 5px;
+    font-weight: bold;
+    font-size: 11px;
+    border-top: 2px solid #000;
+    /* Visual separator if needed, or just text */
+    padding-top: 5px;
 }
 
 .html2pdf__page-break {

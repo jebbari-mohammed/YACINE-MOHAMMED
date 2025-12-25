@@ -42,7 +42,8 @@
             </div>
 
             <div class="actions">
-                <button id="generateBtn" class="btn primary">Générer PDF</button>
+                <button id="generateBtn" class="btn primary">Générer Ordre de Mission</button>
+                <button id="generateReportBtn" class="btn secondary">Générer Rapport</button>
             </div>
         </main>
     </div>
@@ -51,23 +52,23 @@
     <div id="pdf-template-container" style="display: none;">
         <!-- The content here will be cloned and populated for each user -->
         <div class="mission-order-page">
-            <div class="header-section">
-                <div class="logo-box">
-                    <!-- Placeholder for logo if needed, or just text -->
-                    <img src="https://via.placeholder.com/100x50?text=Logo" alt="Logo" class="logo-img">
-                </div>
-                <div class="title-box">
-                    <div class="top-row">
-                        <span>Formulaire Direction Provinciale</span>
-                        <span class="year">2025</span>
-                    </div>
-                    <h2>Ordre de mission</h2>
-                    <div class="bottom-row">
-                        <span>Version : 01</span>
-                        <span>Page 1 sur 1</span>
-                    </div>
-                </div>
-            </div>
+            <table class="header-table">
+                <tr>
+                    <td rowspan="3" class="logo-cell">
+                        <img src="logo.jpg" alt="Logo" class="logo-img">
+                    </td>
+                    <td class="header-text-cell">Formulaire Direction Provinciale</td>
+                    <td class="header-info-cell">2025</td>
+                </tr>
+                <tr>
+                    <td class="header-title-cell">Ordre de mission</td>
+                    <td class="header-info-cell">Version : 01</td>
+                </tr>
+                <tr>
+                    <td class="header-empty-cell"></td>
+                    <td class="header-info-cell">Page 1 sur 1</td>
+                </tr>
+            </table>
 
             <div class="section-title">Agent</div>
             <div class="content-box agent-info">
@@ -130,7 +131,7 @@
 
                 <div class="signatures-row">
                     <div class="date-place">
-                        <p>Fait le : <span class="current-date"></span></p>
+                        <p>Fait le : <span class="data-fait-le"></span></p>
                         <p>à BNI BOUFRAH</p>
                     </div>
                     <div class="agent-signature">
@@ -169,6 +170,180 @@
             <div class="footer-row">
                 <div class="footer-box">Si l'agent relève d'une fonction support ou clientèle</div>
                 <div class="footer-box">Si l'agent relève d'une fonction support ou clientèle</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden Template for Report Generation -->
+    <div id="report-template-container" style="display: none;">
+        <div class="mission-report-page">
+            <div class="report-header">
+                <div class="report-logo">
+                    <img src="logo.jpg" alt="Logo" class="logo-img">
+                </div>
+                <div class="report-title">
+                    <h1>RAPPORT DE MISSION</h1>
+                </div>
+            </div>
+
+            <div class="report-info-row">
+                <strong>Direction. Tanger. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Département : Al hociema
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Division : Al hociema
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Service : AS Bni boufrah </strong>
+            </div>
+
+            <div class="report-agent-row">
+                <div class="agent-col"><strong>Nom et Prénom :</strong> <span class="data-name"></span></div>
+                <div class="agent-col right"><strong>Matricule :</strong> <span class="data-matricule"></span></div>
+            </div>
+
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th rowspan="2" style="width: 15%;">Date</th>
+                        <th colspan="2" style="width: 20%;">Horaire du travail</th>
+                        <th rowspan="2">Travaux effectués</th>
+                    </tr>
+                    <tr>
+                        <th>DU</th>
+                        <th>AU</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Generate 20 empty rows -->
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="report-signatures">
+                <div class="sig-row">
+                    <div class="sig-box">Signature de l'agent</div>
+                    <div class="sig-box">Signature du chef de Service</div>
+                </div>
+                <div class="sig-row">
+                    <div class="sig-box">Signature du chef de Division</div>
+                    <div class="sig-box">Signature de Chef de Département</div>
+                </div>
+                <div class="sig-row center">
+                    <div class="sig-box">Signature du Directeur Spécialisé</div>
+                </div>
+            </div>
+
+            <div class="report-footer">
+                Mettre la référence de l'ordre de mission correspondant au déplacement
             </div>
         </div>
     </div>
