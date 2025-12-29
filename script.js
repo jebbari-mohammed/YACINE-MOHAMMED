@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Add initial row
     addRow();
 
-    addRowBtn.addEventListener('click', () => addRow()); // Call addRow without data for a new empty row
+    addRowBtn.addEventListener('click', () => addRow());
     generateBtn.addEventListener('click', generatePDF);
     generateReportBtn.addEventListener('click', generateReportPDF);
 
@@ -26,7 +26,6 @@ document.addEventListener('DOMContentLoaded', () => {
             </td>
         `;
 
-        // Add event listeners for buttons
         tr.querySelector('.btn-remove').addEventListener('click', function () {
             if (tableBody.children.length > 1) {
                 tr.remove();
@@ -52,14 +51,12 @@ document.addEventListener('DOMContentLoaded', () => {
         return tr;
     }
 
-    function generatePDF() {
+    async function generatePDF() {
         const rows = document.querySelectorAll('#usersTable tbody tr');
         const templateContainer = document.getElementById('pdf-template-container');
-        const printContainer = document.createElement('div');
+        const { jsPDF } = window.jspdf;
 
-        const today = new Date().toLocaleDateString('fr-FR');
-
-        // Filter valid rows first to know total count
+        // Filter valid rows first
         const validRows = Array.from(rows).filter(row => {
             const name = row.querySelector('.input-name').value;
             const matricule = row.querySelector('.input-matricule').value;
@@ -71,56 +68,82 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const totalPages = validRows.length;
+        // Loading State
+        const originalText = generateBtn.textContent;
+        generateBtn.textContent = `Génération... (0/${validRows.length})`;
+        generateBtn.disabled = true;
 
-        validRows.forEach((row, index) => {
-            const name = row.querySelector('.input-name').value;
-            const matricule = row.querySelector('.input-matricule').value;
-            const lieu = row.querySelector('.input-lieu').value;
-            const motif = row.querySelector('.input-motif').value;
-            const dateDepart = row.querySelector('.input-date-depart').value;
-            const dateRetour = row.querySelector('.input-date-retour').value;
+        try {
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const totalPages = validRows.length;
+            const pageWidth = 210;
+            const pageHeight = 297; // A4 height
 
-            const clone = templateContainer.querySelector('.mission-order-page').cloneNode(true);
+            for (let i = 0; i < totalPages; i++) {
+                const row = validRows[i];
+                generateBtn.textContent = `Génération... (${i + 1}/${totalPages})`;
 
-            clone.querySelector('.data-name').textContent = name;
-            clone.querySelector('.data-matricule').textContent = matricule;
-            clone.querySelector('.data-lieu').textContent = lieu;
-            clone.querySelector('.data-motif').textContent = motif;
-            clone.querySelector('.data-date-depart').textContent = formatDate(dateDepart);
-            clone.querySelector('.data-date-retour').textContent = formatDate(dateRetour);
-            clone.querySelector('.data-fait-le').textContent = formatDate(dateDepart);
+                // Populate Template
+                const name = row.querySelector('.input-name').value;
+                const matricule = row.querySelector('.input-matricule').value;
+                const lieu = row.querySelector('.input-lieu').value;
+                const motif = row.querySelector('.input-motif').value;
+                const dateDepart = row.querySelector('.input-date-depart').value;
+                const dateRetour = row.querySelector('.input-date-retour').value;
 
-            // Update page number
-            clone.querySelector('.page-number').textContent = `Page ${index + 1} sur ${totalPages}`;
+                const clone = templateContainer.querySelector('.mission-order-page').cloneNode(true);
 
-            if (index < validRows.length - 1) {
-                clone.classList.add('html2pdf__page-break');
+                // Ensure the clone is visible for html2canvas but off-screen
+                document.body.appendChild(clone);
+                clone.style.position = 'fixed';
+                clone.style.top = '-9999px';
+                clone.style.left = '0';
+                clone.style.zIndex = '-1000';
+
+                clone.querySelector('.data-name').textContent = name;
+                clone.querySelector('.data-matricule').textContent = matricule;
+                clone.querySelector('.data-lieu').textContent = lieu;
+                clone.querySelector('.data-motif').textContent = motif;
+                clone.querySelector('.data-date-depart').textContent = formatDate(dateDepart);
+                clone.querySelector('.data-date-retour').textContent = formatDate(dateRetour);
+                clone.querySelector('.data-fait-le').textContent = formatDate(dateDepart);
+                clone.querySelector('.page-number').textContent = `Page ${i + 1} sur ${totalPages}`;
+
+                // Render Canvas
+                const canvas = await html2canvas(clone, {
+                    scale: 2, // quality
+                    useCORS: true,
+                    logging: false
+                });
+
+                const imgData = canvas.toDataURL('image/jpeg', 0.95);
+
+                // Add to PDF
+                if (i > 0) pdf.addPage();
+                pdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, pageHeight);
+
+                // Cleanup DOM
+                document.body.removeChild(clone);
             }
 
-            printContainer.appendChild(clone);
-        });
+            pdf.save('ordres_de_mission.pdf');
 
-        const opt = {
-            margin: 0,
-            filename: 'ordres_de_mission.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2 },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-            pagebreak: { mode: ['css', 'legacy'] }
-        };
-
-        html2pdf().set(opt).from(printContainer).save();
+        } catch (error) {
+            console.error("PDF Error:", error);
+            alert("Une erreur est survenue lors de la génération du PDF.");
+        } finally {
+            generateBtn.textContent = originalText;
+            generateBtn.disabled = false;
+        }
     }
 
-    function generateReportPDF() {
+    async function generateReportPDF() {
         const rows = document.querySelectorAll('#usersTable tbody tr');
         const templateContainer = document.getElementById('report-template-container');
-        const printContainer = document.createElement('div');
+        const { jsPDF } = window.jspdf;
 
-        // Group data by matricule
+        // Group data
         const employees = {};
-
         rows.forEach(row => {
             const name = row.querySelector('.input-name').value;
             const matricule = row.querySelector('.input-matricule').value;
@@ -128,17 +151,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const motif = row.querySelector('.input-motif').value;
 
             if (name || matricule) {
-                if (!employees[matricule]) {
-                    employees[matricule] = {
-                        name: name,
-                        matricule: matricule,
-                        missions: []
-                    };
-                }
-                employees[matricule].missions.push({
-                    date: dateDepart,
-                    motif: motif
-                });
+                if (!employees[matricule]) employees[matricule] = { name, matricule, missions: [] };
+                employees[matricule].missions.push({ date: dateDepart, motif: motif });
             }
         });
 
@@ -149,73 +163,80 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const MAX_ROWS_PER_PAGE = 15; // Safe limit for A4
+        // Loading State
+        const originalText = generateReportBtn.textContent;
+        generateReportBtn.textContent = "Génération...";
+        generateReportBtn.disabled = true;
 
-        matricules.forEach((mat, empIndex) => {
-            const employee = employees[mat];
-            const missions = employee.missions;
+        try {
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const pageWidth = 210;
+            const pageHeight = 297;
+            const MAX_ROWS_PER_PAGE = 23;
+            let firstPage = true;
 
-            // Calculate number of pages needed
-            const pageCount = Math.ceil(missions.length / MAX_ROWS_PER_PAGE) || 1;
+            for (const mat of matricules) {
+                const employee = employees[mat];
+                const missions = employee.missions;
+                const pageCount = Math.ceil(missions.length / MAX_ROWS_PER_PAGE) || 1;
 
-            for (let i = 0; i < pageCount; i++) {
-                const clone = templateContainer.querySelector('.mission-report-page').cloneNode(true);
+                for (let i = 0; i < pageCount; i++) {
+                    // Add page if not the very start
+                    if (!firstPage) pdf.addPage();
+                    firstPage = false;
 
-                clone.querySelector('.data-name').textContent = employee.name;
-                clone.querySelector('.data-matricule').textContent = employee.matricule;
+                    const clone = templateContainer.querySelector('.mission-report-page').cloneNode(true);
 
-                // Get the slice of missions for this page
-                const start = i * MAX_ROWS_PER_PAGE;
-                const end = start + MAX_ROWS_PER_PAGE;
-                const pageMissions = missions.slice(start, end);
+                    document.body.appendChild(clone);
+                    clone.style.position = 'fixed';
+                    clone.style.top = '-9999px';
+                    clone.style.left = '0';
+                    clone.style.zIndex = '-1000';
 
-                // Clear existing rows in the clone
-                const tbody = clone.querySelector('.report-table tbody');
-                tbody.innerHTML = '';
+                    clone.querySelector('.data-name').textContent = employee.name;
+                    clone.querySelector('.data-matricule').textContent = employee.matricule;
 
-                // Generate exactly MAX_ROWS_PER_PAGE rows
-                for (let r = 0; r < MAX_ROWS_PER_PAGE; r++) {
-                    const tr = document.createElement('tr');
+                    // Table Rows
+                    const start = i * MAX_ROWS_PER_PAGE;
+                    const end = start + MAX_ROWS_PER_PAGE;
+                    const pageMissions = missions.slice(start, end);
+                    const tbody = clone.querySelector('.report-table tbody');
+                    tbody.innerHTML = '';
 
-                    if (r < pageMissions.length) {
-                        const mission = pageMissions[r];
-                        tr.innerHTML = `
-                            <td>${formatDate(mission.date)}</td>
-                            <td>08 H 00</td>
-                            <td>17 H 00</td>
-                            <td>${mission.motif}</td>
-                        `;
-                    } else {
-                        // Empty row
-                        tr.innerHTML = `
-                            <td>&nbsp;</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        `;
+                    for (let r = 0; r < MAX_ROWS_PER_PAGE; r++) {
+                        const tr = document.createElement('tr');
+                        if (r < pageMissions.length) {
+                            const m = pageMissions[r];
+                            tr.innerHTML = `<td>${formatDate(m.date)}</td><td>08 H 00</td><td>17 H 00</td><td>${m.motif}</td>`;
+                        } else {
+                            tr.innerHTML = `<td>&nbsp;</td><td></td><td></td><td></td>`;
+                        }
+                        tbody.appendChild(tr);
                     }
-                    tbody.appendChild(tr);
-                }
 
-                // Add page break if it's not the very last page of the very last employee
-                if (empIndex < matricules.length - 1 || i < pageCount - 1) {
-                    clone.classList.add('html2pdf__page-break');
-                }
+                    // Render
+                    const canvas = await html2canvas(clone, {
+                        scale: 2,
+                        useCORS: true,
+                        logging: false
+                    });
 
-                printContainer.appendChild(clone);
+                    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                    pdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, pageHeight);
+
+                    document.body.removeChild(clone);
+                }
             }
-        });
 
-        const opt = {
-            margin: 0,
-            filename: 'rapports_de_mission.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2 },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-            pagebreak: { mode: ['css', 'legacy'] }
-        };
+            pdf.save('rapports_de_mission.pdf');
 
-        html2pdf().set(opt).from(printContainer).save();
+        } catch (error) {
+            console.error("Report Error:", error);
+            alert("Erreur lors de la génération du rapport.");
+        } finally {
+            generateReportBtn.textContent = originalText;
+            generateReportBtn.disabled = false;
+        }
     }
 
     function formatDate(dateString) {

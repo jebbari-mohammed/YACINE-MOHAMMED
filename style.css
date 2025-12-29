@@ -152,8 +152,8 @@ input {
 /* PDF Template Styles */
 .mission-order-page {
     width: 210mm;
-    min-height: 290mm;
-    /* Reduced from 297mm to prevent overflow */
+    height: 296mm;
+    /* Strict A4 height */
     padding: 10mm;
     background: white;
     font-family: Arial, sans-serif;
@@ -162,7 +162,8 @@ input {
     box-sizing: border-box;
     position: relative;
     border: 1px solid #ccc;
-    /* For visibility during dev, removed in PDF usually */
+    overflow: hidden;
+    /* Prevent spillover */
 }
 
 .header-table {
@@ -298,8 +299,8 @@ input {
 /* Report Template Styles */
 .mission-report-page {
     width: 210mm;
-    min-height: 270mm;
-    /* Reduced further to prevent overflow */
+    height: 296mm;
+    /* Strict A4 height */
     padding: 10mm;
     background: white;
     font-family: Arial, sans-serif;
@@ -308,6 +309,8 @@ input {
     box-sizing: border-box;
     position: relative;
     border: 1px solid #ccc;
+    overflow: hidden;
+    /* Prevent spillover */
 }
 
 .report-header {
@@ -368,7 +371,12 @@ input {
 }
 
 .report-table td {
-    height: 20px;
+    height: 22px;
+    /* Reduced to fit 23 rows */
+    padding: 2px 5px;
+    /* Reduced vertical padding significantly */
+    font-size: 11px;
+    /* Slightly smaller font to fit */
 }
 
 .report-signatures {
@@ -405,4 +413,24 @@ input {
 
 .html2pdf__page-break {
     page-break-after: always;
+    break-after: page;
+    height: 0;
+    display: block;
+}
+
+/* Text Truncation for Tables to keep row height consistent */
+.report-table td,
+.header-table td,
+.field span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 0;
+    /* Forces flex/grid items to shrink if needed, though mostly table cells here */
+}
+
+/* Specific overrides for table cells to respect max-width */
+.report-table td {
+    max-width: 150px;
+    /* Arbitrary limit to force ellipsis */
 }
